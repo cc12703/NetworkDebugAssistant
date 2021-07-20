@@ -1,5 +1,6 @@
 package com.dlong.dl10netassistant
 
+import java.net.InetSocketAddress
 import java.net.Socket
 
 /**
@@ -12,7 +13,9 @@ class TcpClientThread constructor(
     // 地址
     private val mAddress: String,
     // 端口
-    private val mPort: Int
+    private val mPort: Int,
+    private val cTimeout: Int = 10 * 1000,
+    private val rTimeout: Int = 5 * 1000
 ) : BaseNetThread() {
 
     constructor(mAddress: String, mPort: Int, listener: OnNetThreadListener): this(mAddress, mPort) {
@@ -29,8 +32,11 @@ class TcpClientThread constructor(
         super.run()
         try {
             // 连接服务器
-            socket = Socket(mAddress, mPort)
+            socket = Socket()
+            val socAddr = InetSocketAddress(mAddress, mPort)
+            socket.connect(socAddr, cTimeout)
             socket.reuseAddress = true
+            socket.soTimeout = rTimeout
         } catch (e: Exception) {
             // 连接失败
             socket = Socket()
@@ -67,7 +73,7 @@ class TcpClientThread constructor(
     }
 
     override fun isConnected(): Boolean {
-        return socket.isConnected
+        return if(this::socket.isInitialized) socket.isConnected else false
     }
 
     override fun send(data: ByteArray) {
@@ -86,6 +92,8 @@ class TcpClientThread constructor(
 
     override fun close() {
         super.close()
-        socket.close()
+        if(this::socket.isInitialized) {
+            socket.close()
+        }
     }
 }
