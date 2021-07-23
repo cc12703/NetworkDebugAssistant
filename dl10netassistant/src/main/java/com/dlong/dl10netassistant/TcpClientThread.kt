@@ -28,6 +28,12 @@ class TcpClientThread constructor(
 
     private lateinit var socket: Socket
 
+
+    fun cfgKeepLive() {
+        this.socket.keepAlive = true
+    }
+
+
     override fun run() {
         super.run()
         try {

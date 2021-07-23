@@ -29,6 +29,11 @@ open class BaseNetThread constructor() : Thread() {
         this.listenerLambda?.listener()
     }
 
+    open fun clrThreadListener() {
+        this.listener = null
+        this.listenerLambda = null
+    }
+
     /**
      * 获取系统时间戳
      * @return
