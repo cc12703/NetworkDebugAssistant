@@ -18,6 +18,8 @@ class TcpClientThread constructor(
     private val rTimeout: Int = 5 * 1000
 ) : BaseNetThread() {
 
+    private var cfgKeepLive = false
+
     constructor(mAddress: String, mPort: Int, listener: OnNetThreadListener): this(mAddress, mPort) {
         super.setThreadListener(listener)
     }
@@ -29,8 +31,8 @@ class TcpClientThread constructor(
     private lateinit var socket: Socket
 
 
-    fun cfgKeepLive() {
-        this.socket.keepAlive = true
+    fun enableKeepLive() {
+        this.cfgKeepLive = true
     }
 
 
@@ -43,6 +45,7 @@ class TcpClientThread constructor(
             socket.connect(socAddr, cTimeout)
             socket.reuseAddress = true
             socket.soTimeout = rTimeout
+            socket.keepAlive = this.cfgKeepLive
         } catch (e: Exception) {
             // 连接失败
             socket = Socket()
